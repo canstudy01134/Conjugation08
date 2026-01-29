@@ -202,22 +202,30 @@
         const cleanText = text.includes('/') ? text.split('/')[0] : text;
         const msg = new SpeechSynthesisUtterance(cleanText);
         msg.lang = 'en-US';
-        msg.rate = 1.0;
+        msg.rate = 0.75;
         msg.onend = callback;
         speechSynthesis.speak(msg);
     }
 
     async function speakTriple(v1, v2, v3, callback) {
         speechSynthesis.cancel();
+        const innerDelay = 500; // ここで単語間の待ち時間を調整
+
         await new Promise(r => speak(v1, r));
-        if(v2 !== "-") await new Promise(r => speak(v2, r));
-        if(v3 !== "-") await new Promise(r => speak(v3, r));
+        await new Promise(r => setTimeout(r, innerDelay));
+        
+        await new Promise(r => speak(v2, r));
+        await new Promise(r => setTimeout(r, innerDelay));
+        
+        await new Promise(r => speak(v3, r));
+        
         if(callback) callback();
     }
 
     async function playGroup(startIndex, count) {
         if (isAutoPlaying) { stopAutoPlay(); return; }
         isAutoPlaying = true;
+        
         const btn = document.getElementById(`btn-play-${startIndex}`);
         btn.classList.add('playing');
         btn.innerText = "■ 停止";
@@ -227,10 +235,14 @@
 
         for (let i = startIndex; i < startIndex + count; i++) {
             if (!isAutoPlaying || !wordData[startIdx + i]) break;
+            
             document.querySelectorAll('.word-row').forEach(r => r.classList.remove('highlight'));
             const currentRow = document.getElementById(`row-${i}`);
-            if (currentRow) currentRow.classList.add('highlight');
-
+            if (currentRow) {
+                currentRow.classList.add('highlight');
+                currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
             await new Promise(res => {
                 speakTriple(wordData[startIdx + i][0], wordData[startIdx + i][1], wordData[startIdx + i][2], () => {
                     setTimeout(res, interval);
