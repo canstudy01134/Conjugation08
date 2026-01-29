@@ -15,11 +15,8 @@
         body { font-family: 'Klee One', cursive, sans-serif; background-color: var(--bg-color); margin: 0; padding: 10px; }
         .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; }
 
-        /* ヘッダー */
         .header { padding: 20px 15px; text-align: center; border-bottom: 2px solid var(--primary-color); background: white; }
-        .main-title { font-size: 1.4rem; margin: 0; color: #333; }
-        
-        /* オーバル背景のサブタイトル */
+        .main-title { font-size: 1.3rem; margin: 0; color: #333; line-height: 1.4; }
         .sub-title-badge { display: inline-block; background: var(--primary-color); color: white; padding: 4px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: bold; margin-top: 10px; }
         
         .controls { padding: 15px; background: #fafafa; border-bottom: 1px solid #ddd; }
@@ -48,10 +45,10 @@
         .en-col { flex: 2.5; display: flex; flex-direction: column; gap: 4px; }
         .word-unit { display: flex; flex-direction: column; }
         .kana-small { font-size: 0.65rem; color: #888; margin-bottom: -2px; }
-        .word-large { font-size: 1.25rem; color: #000; font-weight: bold; line-height: 1.2; }
+        .word-large { font-size: 1.15rem; color: #000; font-weight: bold; line-height: 1.2; }
         .word-sep { border-left: 3px solid #eee; padding-left: 10px; margin-left: 2px; }
         
-        .ja-col { flex: 1.5; font-size: 0.9rem; color: #444; border-left: 2px solid #f0f0f0; padding-left: 15px; font-weight: bold; }
+        .ja-col { flex: 1.5; font-size: 0.85rem; color: #444; border-left: 2px solid #f0f0f0; padding-left: 15px; font-weight: bold; line-height: 1.3; }
         .hide-ja .ja-col { visibility: hidden; }
     </style>
 </head>
@@ -59,7 +56,7 @@
 
 <div class="container">
     <div class="header">
-        <div class="main-title">英単語　3年　現在完了形単語40</div>
+        <div class="main-title">英単語 3年 現在完了形単語40</div>
         <div class="sub-title-badge" id="subTitle">1番 〜 20番</div>
     </div>
     
@@ -86,7 +83,7 @@
     const wordData = [
         ["never", "-", "-", "ネバ―", "-", "-", "今まで～ない"],
         ["ever", "-", "-", "エバー", "-", "-", "今まで(疑問文)"],
-        ["be to", "was/were to", "been to", "ビー トゥー", "ワズ トゥー", "ビーン トゥー", "～へ行ったことがある"],
+        ["be to", "was to", "been to", "ビー トゥー", "ワズ トゥー", "ビーン トゥー", "～へ行ったことがある"],
         ["come", "came", "come", "カム", "ケイム", "カム", "来る"],
         ["eat", "ate", "eaten", "イート", "エイト", "イートゥン", "食べる"],
         ["make", "made", "made", "メイク", "メイド", "メイド", "作る"],
@@ -100,7 +97,7 @@
         ["arrive", "arrived", "arrived", "アライブ", "アライブド", "アライブド", "到着する"],
         ["buy", "bought", "bought", "バイ", "ボウト", "ボウト", "買う"],
         ["clean", "cleaned", "cleaned", "クリーン", "クリーンド", "クリーンド", "掃除する"],
-        ["do", "did", "done", "ドゥー", "ディド", "ドゥーン", "する"],
+        ["do", "did", "done", "ドゥー", "ディド", "ドーン", "する"],
         ["eat", "ate", "eaten", "イート", "エイト", "イートゥン", "食べる(再)"],
         ["finish", "finished", "finished", "フィニッシュ", "フィニッシュド", "フィニッシュド", "終わる"],
         ["get", "got", "got", "ゲット", "ゴット", "ゴット", "手に入れる"],
@@ -114,7 +111,7 @@
         ["visit", "visited", "visited", "ビジット", "ビジティッド", "ビジティッド", "訪れる(再)"],
         ["wash", "washed", "washed", "ウォッシュ", "ウォッシュド", "ウォッシュド", "洗う"],
         ["write", "wrote", "written", "ライト", "ロウト", "リトゥン", "書く"],
-        ["be busy", "was/were busy", "been busy", "ビー ビジー", "ワズ ビジー", "ビーン ビジー", "忙しいです"],
+        ["be busy", "was busy", "been busy", "ビー ビジー", "ワズ ビジー", "ビーン ビジー", "忙しい"],
         ["be rainy", "was rainy", "been rainy", "ビー レイニー", "ワズ レイニー", "ビーン レイニー", "雨です"],
         ["eat", "ate", "eaten", "イート", "エイト", "イートゥン", "食べる(三)"],
         ["hold", "held", "held", "ホールド", "ヘルド", "ヘルド", "開催する"],
@@ -129,6 +126,7 @@
     let currentPage = 0;
     const pageSize = 20;
     let isAutoPlaying = false;
+    const synth = window.speechSynthesis;
 
     function render() {
         stopAutoPlay();
@@ -198,26 +196,21 @@
     }
 
     function speak(text, callback) {
-        if (text === "-") { callback(); return; }
-        const cleanText = text.includes('/') ? text.split('/')[0] : text;
-        const msg = new SpeechSynthesisUtterance(cleanText);
+        if (!text || text === "-") { if(callback) callback(); return; }
+        const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
-        msg.rate = 0.75; // 読み上げ速度
-        msg.onend = callback;
-        speechSynthesis.speak(msg);
+        msg.rate = 0.8; // 読み上げ速度
+        msg.onend = () => { if(callback) callback(); };
+        synth.speak(msg);
     }
 
     async function speakTriple(v1, v2, v3, callback) {
-        speechSynthesis.cancel();
-        const innerDelay = 500; // ここで単語間の待ち時間を調整
+        synth.cancel();
+        const innerDelay = 400;
 
-        await new Promise(r => speak(v1, r));
-        await new Promise(r => setTimeout(r, innerDelay));
-        
-        await new Promise(r => speak(v2, r));
-        await new Promise(r => setTimeout(r, innerDelay));
-        
-        await new Promise(r => speak(v3, r));
+        await new Promise(r => speak(v1, () => setTimeout(r, innerDelay)));
+        if (v2 !== "-") await new Promise(r => speak(v2, () => setTimeout(r, innerDelay)));
+        if (v3 !== "-") await new Promise(r => speak(v3, () => setTimeout(r, innerDelay)));
         
         if(callback) callback();
     }
@@ -254,11 +247,12 @@
 
     function stopAutoPlay() {
         isAutoPlaying = false;
-        speechSynthesis.cancel();
+        synth.cancel();
         document.querySelectorAll('.play-btn-inline').forEach((b, idx) => {
             b.classList.remove('playing');
             const num = (currentPage * pageSize) + (idx * 5) + 1;
-            b.innerText = `▶ ${num}-${Math.min(num+4, wordData.length)} 連続再生`;
+            const dataLen = wordData.length;
+            b.innerText = `▶ ${num}-${Math.min(num+4, dataLen)} 連続再生`;
         });
         document.querySelectorAll('.word-row').forEach(r => r.classList.remove('highlight'));
     }
