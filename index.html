@@ -199,14 +199,14 @@
         if (!text || text === "-") { if(callback) callback(); return; }
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
-        msg.rate = 0.8; // 読み上げ速度
+        msg.rate = 0.75; // 読み上げ速度
         msg.onend = () => { if(callback) callback(); };
         synth.speak(msg);
     }
 
     async function speakTriple(v1, v2, v3, callback) {
         synth.cancel();
-        const innerDelay = 400;
+        const innerDelay = 500;
 
         await new Promise(r => speak(v1, () => setTimeout(r, innerDelay)));
         if (v2 !== "-") await new Promise(r => speak(v2, () => setTimeout(r, innerDelay)));
