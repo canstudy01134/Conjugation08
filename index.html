@@ -202,7 +202,7 @@
         const cleanText = text.includes('/') ? text.split('/')[0] : text;
         const msg = new SpeechSynthesisUtterance(cleanText);
         msg.lang = 'en-US';
-        msg.rate = 0.75;
+        msg.rate = 0.75; // 読み上げ速度
         msg.onend = callback;
         speechSynthesis.speak(msg);
     }
